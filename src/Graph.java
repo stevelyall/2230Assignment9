@@ -1,9 +1,11 @@
-import java.util.*;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Graph represents an adjacency matrix implementation of a graph.
  *
- * @author Java Foundations
+ * @author Java Foundations except where noted
  * @version 4.0
  */
 public class Graph<T> implements GraphADT<T>
@@ -17,6 +19,7 @@ public class Graph<T> implements GraphADT<T>
     /**
      * Creates an empty graph.
      */
+    @SuppressWarnings("unchecked")
     public Graph()
     {
         numVertices = 0;
@@ -34,7 +37,7 @@ public class Graph<T> implements GraphADT<T>
         if (numVertices == 0)
             return "Graph is empty";
 
-        String result = new String("");
+        String result = "";
 
         result += "Adjacency Matrix\n";
         result += "----------------\n";
@@ -93,13 +96,20 @@ public class Graph<T> implements GraphADT<T>
 
     /**
      * Removes an edge between two vertices of the graph.
-     *
+     * @author stevelyall
+     *   Complexity: O(1)
+     *   Precondition: The graph object has been instantiated.
+     *   Postcondition: Adjacency matrix indices contain false. Edge removed.
      * @param index1  the first index
      * @param index2  the second index
      */
     public void removeEdge(int index1, int index2)
     {
-        // TODO removeEdge int
+        if (indexIsValid(index1) && indexIsValid(index2)) {
+            adjMatrix[index1][index2] = false;
+            adjMatrix[index2][index1] = false;
+            modCount++;
+        }
     }
 
     /**
@@ -115,13 +125,16 @@ public class Graph<T> implements GraphADT<T>
 
     /**
      * Removes an edge between two vertices of the graph.
-     *
+     * @author stevelyall
+     *   Complexity: O(1)
+     *   Precondition: The graph object has been instantiated.
+     *   Postcondition: Adjacency matrix indices contain false. Edge removed.
      * @param vertex1  the first vertex
      * @param vertex2  the second vertex
      */
     public void removeEdge(T vertex1, T vertex2)
     {
-        // TODO removeEdge by vertex
+        removeEdge(getIndex(vertex1), getIndex(vertex2));
     }
 
     /**
@@ -353,7 +366,7 @@ public class Graph<T> implements GraphADT<T>
         } while (index != startIndex);
         
         while (!stack.isEmpty())
-            resultList.addToRear(((Integer)stack.pop()));
+            resultList.addToRear(stack.pop());
 
         return new GraphIndexIterator(resultList.iterator());
     }
@@ -377,7 +390,7 @@ public class Graph<T> implements GraphADT<T>
         Iterator<Integer> it = iteratorShortestPathIndices(startIndex, 
                                       targetIndex);        
         while (it.hasNext())
-            resultList.addToRear(vertices[((Integer)it.next()).intValue()]);
+            resultList.addToRear(vertices[it.next().intValue()]);
         return new GraphIterator(resultList.iterator());
     }
 
@@ -416,7 +429,7 @@ public class Graph<T> implements GraphADT<T>
                                       targetIndex);
 
         if (it.hasNext())
-            index1 = ((Integer)it.next()).intValue();
+            index1 = it.next().intValue();
         else
             return 0;
 
@@ -448,7 +461,8 @@ public class Graph<T> implements GraphADT<T>
      *
      * @return a minimum spanning tree of the graph
      */
-    public Graph getMST()
+    @SuppressWarnings("unchecked")
+    public Graph<T> getMST()
     {
         int x, y;
         int[] edge = new int[2];
@@ -541,6 +555,9 @@ public class Graph<T> implements GraphADT<T>
     /**
      * Returns the number of vertices in the graph.
      * @author stevelyall
+     *  Complexity: O(1)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph is unchanged.
      * @return the integer number of vertices in the graph
      */
     public int size()
@@ -551,6 +568,9 @@ public class Graph<T> implements GraphADT<T>
     /**
      * Returns true if the graph is empty and false otherwise. 
      * @author stevelyall
+     *  Complexity: O(1)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph is unchanged.
      * @return true if the graph is empty
      */
     public boolean isEmpty()
@@ -560,48 +580,65 @@ public class Graph<T> implements GraphADT<T>
 
     /**
      * Returns true if the graph is connected and false otherwise. 
-     *
+     @author stevelyall
+      *   Complexity: O(n)
+      *   Precondition: The graph object has been instantiated.
+      *   Postcondition: The graph object is unchanged.
      * @return true if the graph is connected
      */
     public boolean isConnected()
     {
-        // TODO isConnected simpler than it sounds because iterator is built. Make use of one of the iterators.
-        return false;
+        int bftSize = 0;
+        Iterator<T> bft = iteratorBFS(0);
+        while (bft.hasNext()) {
+            bftSize++;
+            bft.next();
+        }
+        return (bftSize == size());
     }
 
     /**
      * Returns the index value of the first occurrence of the vertex.
      * Returns -1 if the key is not found.
-     *
+     * @author stevelyall
+     *   Complexity: O(n)
+     *   Precondition: The graph object has been instantiated.
+     *   Postcondition: The graph object is unchanged.
      * @param vertex the vertex whose index value is being sought
      * @return the index value of the given vertex
      */
     public int getIndex(T vertex)
     {
-        // TODO getIndex is lookup
-        return 0;
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i].equals(vertex)) return i;
+        }
+        return -1;
     }
 
     /**
      * Returns true if the given index is valid. 
-     *
+     * @author stevelyall
+     *  Complexity: O(1)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph is unchanged.
      * @param index the index whose validity is being queried
      * @return true if the given index is valid
      */
     protected boolean indexIsValid(int index)
     {
-        return false;
-        // TODO IndexIsValid is index in range of adjacency matrix, holes cause issues?
+        return (index >= 0 && index < size());
     }
 
     /**
      * Returns a copy of the vertices array.
-     *
+     * @author stevelyall
+     *  Complexity: O(1)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph is unchanged.
      * @return a copy of the vertices array
      */
     public Object[] getVertices()
     {
-        // TODO getVertices
         return vertices;
     }
     
