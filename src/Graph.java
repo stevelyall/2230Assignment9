@@ -43,7 +43,7 @@ public class Graph<T> implements GraphADT<T>
         result += "----------------\n";
         result += "index\t";
 
-        for (int i = 0; i < numVertices; i++) 
+        for (int i = 0; i < getVertexArrayCount(); i++)
         {
             result += "" + i;
             if (i < 10)
@@ -51,11 +51,11 @@ public class Graph<T> implements GraphADT<T>
         }
         result += "\n\n";
 
-        for (int i = 0; i < numVertices; i++)
+        for (int i = 0; i < getVertexArrayCount(); i++)
         {
             result += "" + i + "\t";
-        
-            for (int j = 0; j < numVertices; j++)
+
+            for (int j = 0; j < getVertexArrayCount(); j++)
             {
                 if (adjMatrix[i][j])
                     result += "1 ";
@@ -69,7 +69,7 @@ public class Graph<T> implements GraphADT<T>
         result += "\n-------------\n";
         result += "index\tvalue\n\n";
 
-        for (int i = 0; i < numVertices; i++)
+        for (int i = 0; i < getVertexArrayCount(); i++)
         {
             result += "" + i + "\t";
             result += vertices[i].toString() + "\n";
@@ -159,7 +159,7 @@ public class Graph<T> implements GraphADT<T>
             }
         };
 
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < getVertexArrayCount(); i++) {
             adjMatrix[numVertices][i] = false;
             adjMatrix[i][numVertices] = false;
         }
@@ -179,7 +179,7 @@ public class Graph<T> implements GraphADT<T>
             expandCapacity();
 
         vertices[numVertices] = vertex;
-        for (int i = 0; i < numVertices; i++)
+        for (int i = 0; i < getVertexArrayCount(); i++)
         {
             adjMatrix[numVertices][i] = false;
             adjMatrix[i][numVertices] = false;
@@ -191,9 +191,13 @@ public class Graph<T> implements GraphADT<T>
     /**
      * Removes a vertex at the given index from the graph.  Note that 
      * this may affect the index values of other vertices.
-     *
+     * @author stevelyall
+     *  Complexity: O(n)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph contains one less vertex.
      * @param index  the index at which the vertex is to be removed from
      */
+    @SuppressWarnings("unchecked")
     public void removeVertex(int index)
     {
         if (!indexIsValid(index)) {
@@ -206,24 +210,25 @@ public class Graph<T> implements GraphADT<T>
                 return "Empty";
             }
         };
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < getVertexArrayCount(); i++) {
             adjMatrix[numVertices][i] = false;
             adjMatrix[i][numVertices] = false;
         }
         numVertices--;
         modCount++;
 
-        // TODO removeVertex(int index) remove from graph. Can leave holes, as don't change index. Leave zeros in adj matrix, null in array of vertices is problematic. Placeholder?
     }
 
     /**
      * Removes a single vertex with the given value from the graph.  
-     *
+     * @author stevelyall
+     *  Complexity: O(1)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph contains one less vertex.
      * @param vertex  the vertex to be removed from the graph
      */
     public void removeVertex(T vertex)
     {
-        // TODO remove
         removeVertex(getIndex(vertex));
     }
 
@@ -604,14 +609,35 @@ public class Graph<T> implements GraphADT<T>
         return numVertices;
     }
 
-    // TODO comment this
-    public int numEmptyVertices() {
+    /**
+     * Returns the number of non-null empty spaces in the vertices array.
+     *
+     * @return the number of empty spaces in the vertices array
+     * @author stevelyall
+     * Complexity: O(n)
+     * Precondition: The graph object has been instantiated.
+     * Postcondition: The graph is unchanged.
+     */
+    private int numEmptyVertices() {
         int i = 0;
         while (vertices[i] != null) {
             i++;
         }
         return i - numVertices;
 
+    }
+
+    /**
+     * Returns the size of the vertices array, including empty non-null spaces, for use in loops.
+     *
+     * @return the number of vertices and empty spaces in the graph
+     * @author stevelyall
+     * Complexity: O(1)
+     * Precondition: The graph object has been instantiated.
+     * Postcondition: The graph is unchanged.
+     */
+    private int getVertexArrayCount() {
+        return numVertices + numEmptyVertices();
     }
 
     /**
@@ -641,7 +667,7 @@ public class Graph<T> implements GraphADT<T>
         Iterator<T> bft = iteratorBFS(0);
         while (bft.hasNext()) {
             bftSize++;
-            bft.next();
+            T vertex = bft.next();
         }
         return (bftSize == size());
     }
@@ -656,9 +682,8 @@ public class Graph<T> implements GraphADT<T>
      * @param vertex the vertex whose index value is being sought
      * @return the index value of the given vertex
      */
-    public int getIndex(T vertex)
-    {
-        for (int i = 0; i < numVertices; i++) {
+    public int getIndex(T vertex) {
+        for (int i = 0; i < getVertexArrayCount(); i++) {
             if (vertices[i].equals(vertex)) {
                 return i;
             }
@@ -675,9 +700,8 @@ public class Graph<T> implements GraphADT<T>
      * @param index the index whose validity is being queried
      * @return true if the given index is valid
      */
-    protected boolean indexIsValid(int index)
-    {
-        return (index >= 0 && index < size());
+    protected boolean indexIsValid(int index) {   // valid if within bounds of array and not marked as empty
+        return (index >= 0 && index < size() + numEmptyVertices()) && !vertices[index].toString().equals("Empty");
     }
 
     /**
