@@ -42,17 +42,45 @@ public class GraphTest {
     }
 
     @Test
+    // remove edge by vertex
     public void testRemoveEdge1() throws Exception {
-
+        g1.addVertex("Hello");
+        g1.addVertex("World");
+        assertEquals(2, g1.size());
+        g1.addEdge(0, 1);
+        assertTrue(g1.isConnected());
+        g1.removeEdge("Hello", "World");
+        assertFalse(g1.isConnected());
     }
 
     @Test
     public void testAddVertex() throws Exception {
+        g1.addVertex();
+        assertEquals(1, g1.size());
 
     }
 
     @Test
+    // remove by index
     public void testRemoveVertex() throws Exception {
+        g1.addVertex("Hello");
+        g1.addVertex("World");
+        g1.addVertex("Sup");
+        g1.addEdge("Hello", "World");
+        g1.addEdge("World", "Sup");
+
+        assertEquals(3, g1.size());
+        g1.removeVertex(1);
+        assertEquals(-1, g1.getIndex("World"));
+        assertEquals(2, g1.size());
+
+        System.out.println(g1);
+
+    }
+
+    @Test
+    // remove by vertex
+    public void testRemoveVertex1() throws Exception {
 
     }
 
@@ -104,4 +132,6 @@ public class GraphTest {
         // TODO after removing, say, index 1? holes may cause issue?
 
     }
+
+
 }

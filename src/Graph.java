@@ -140,10 +140,31 @@ public class Graph<T> implements GraphADT<T>
     /**
      * Adds a vertex to the graph, expanding the capacity of the graph
      * if necessary.
+     * @author stevelyall
+     *  Complexity: O(n)
+     *  Precondition: The graph object has been instantiated.
+     *  Postcondition: The graph contains an additional vertex.
      */
+    @SuppressWarnings("unchecked")
     public void addVertex()
     {
-        // TODO addVertex() put in default, make from object or create own version. Something that derives from Object, needs to have standard toString
+        if ((numVertices + 1) == adjMatrix.length)
+            expandCapacity();
+
+        // add default vertex object
+        vertices[numVertices] = (T) new Object() {
+            @Override
+            public String toString() {
+                return "Default";
+            }
+        };
+
+        for (int i = 0; i < numVertices; i++) {
+            adjMatrix[numVertices][i] = false;
+            adjMatrix[i][numVertices] = false;
+        }
+        numVertices++;
+        modCount++;
     }
 
     /**
@@ -162,7 +183,7 @@ public class Graph<T> implements GraphADT<T>
         {
             adjMatrix[numVertices][i] = false;
             adjMatrix[i][numVertices] = false;
-        }        
+        }
         numVertices++;
         modCount++;
     }
@@ -175,6 +196,23 @@ public class Graph<T> implements GraphADT<T>
      */
     public void removeVertex(int index)
     {
+        if (!indexIsValid(index)) {
+            return;
+        }
+
+        vertices[index] = (T) new Object() {
+            @Override
+            public String toString() {
+                return "Empty";
+            }
+        };
+        for (int i = 0; i < numVertices; i++) {
+            adjMatrix[numVertices][i] = false;
+            adjMatrix[i][numVertices] = false;
+        }
+        numVertices--;
+        modCount++;
+
         // TODO removeVertex(int index) remove from graph. Can leave holes, as don't change index. Leave zeros in adj matrix, null in array of vertices is problematic. Placeholder?
     }
 
@@ -185,7 +223,8 @@ public class Graph<T> implements GraphADT<T>
      */
     public void removeVertex(T vertex)
     {
-        // To be completed as a Programming Project
+        // TODO remove
+        removeVertex(getIndex(vertex));
     }
 
     /**
