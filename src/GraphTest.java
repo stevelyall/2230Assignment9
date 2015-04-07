@@ -1,6 +1,8 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 public class GraphTest {
@@ -60,22 +62,40 @@ public class GraphTest {
 
     }
 
+//    @Test
+//    // remove by index
+//    public void testRemoveVertex() throws Exception {
+//        g1.addVertex("Hello");
+//        g1.addVertex("World");
+//        g1.addVertex("Sup");
+//        g1.addEdge("Hello", "World");
+//        g1.addEdge("World", "Sup");
+//
+//        assertEquals(3, g1.size());
+//        g1.removeVertex(1);
+//        assertEquals(2, g1.size());
+//        assertEquals(-1, g1.getIndex("World"));
+//        assertEquals(2,g1.getIndex("Sup"));
+//
+//        System.out.println(g1);
+//
+//    }
+
     @Test
-    // remove by index
-    public void testRemoveVertex() throws Exception {
+    public void testNumEmptyVertices() {
+        assertEquals(0, g1.numEmptyVertices());
+
         g1.addVertex("Hello");
         g1.addVertex("World");
-        g1.addVertex("Sup");
-        g1.addEdge("Hello", "World");
-        g1.addEdge("World", "Sup");
-
-        assertEquals(3, g1.size());
+        g1.addVertex("How");
+        g1.addVertex("Hello");
+        g1.addVertex("You");
+        System.out.println(Arrays.toString(g1.getVertices()));
         g1.removeVertex(1);
-        assertEquals(-1, g1.getIndex("World"));
-        assertEquals(2, g1.size());
+        System.out.println(Arrays.toString(g1.getVertices()));
 
-        System.out.println(g1);
-
+        assertEquals(4, g1.size());
+        assertEquals(1, g1.numEmptyVertices());
     }
 
     @Test

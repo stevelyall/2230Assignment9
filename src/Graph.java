@@ -604,6 +604,16 @@ public class Graph<T> implements GraphADT<T>
         return numVertices;
     }
 
+    // TODO comment this
+    public int numEmptyVertices() {
+        int i = 0;
+        while (vertices[i] != null) {
+            i++;
+        }
+        return i - numVertices;
+
+    }
+
     /**
      * Returns true if the graph is empty and false otherwise. 
      * @author stevelyall
@@ -648,8 +658,10 @@ public class Graph<T> implements GraphADT<T>
      */
     public int getIndex(T vertex)
     {
-        for (int i = 0; i < vertices.length; i++) {
-            if (vertices[i].equals(vertex)) return i;
+        for (int i = 0; i < numVertices; i++) {
+            if (vertices[i].equals(vertex)) {
+                return i;
+            }
         }
         return -1;
     }
